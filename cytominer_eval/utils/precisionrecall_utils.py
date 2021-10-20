@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-def calculate_precision_recall(replicate_group_df: pd.DataFrame, k: int) -> pd.Series:
+def calculate_precision_recall(replicate_group_df: pd.DataFrame, k) -> pd.Series:
     """Given an elongated pairwise correlation dataframe of replicate groups, calculate
     precision and recall.
 
@@ -13,8 +13,9 @@ def calculate_precision_recall(replicate_group_df: pd.DataFrame, k: int) -> pd.S
     replicate_group_df : pandas.DataFrame
         An elongated dataframe storing pairwise correlations of all profiles to a single
         replicate group.
-    k : int
+    k : int or "R"
         an integer indicating how many pairwise comparisons to threshold.
+        if k = "R", then calculate precision at R
 
     Returns
     -------
@@ -27,17 +28,34 @@ def calculate_precision_recall(replicate_group_df: pd.DataFrame, k: int) -> pd.S
     ), "'group_replicate' not found in dataframe; remember to call assign_replicates()."
 
     recall_denom__total_relevant_items = sum(replicate_group_df.group_replicate)
-    precision_denom__num_recommended_items = k
 
-    num_recommended_items_at_k = sum(
-        replicate_group_df.iloc[
-            :k,
-        ].group_replicate
-    )
+    if k != "R":
+        precision_denom__num_recommended_items = k
 
-    precision_at_k = num_recommended_items_at_k / precision_denom__num_recommended_items
-    recall_at_k = num_recommended_items_at_k / recall_denom__total_relevant_items
+        num_recommended_items_at_k = sum(
+            replicate_group_df.iloc[
+                :k,
+            ].group_replicate
+        )
 
-    return_bundle = {"k": k, "precision": precision_at_k, "recall": recall_at_k}
+        precision_at_k = num_recommended_items_at_k / precision_denom__num_recommended_items
+        recall_at_k = num_recommended_items_at_k / recall_denom__total_relevant_items
 
-    return pd.Series(return_bundle)
+        return_bundle = {"k": k, "precision": precision_at_k, "recall": recall_at_k}
+
+        return pd.Series(return_bundle)
+    else:
+        R = recall_denom__total_relevant_items
+
+        num_recommended_items_at_k = sum(
+            replicate_group_df.iloc[
+            :R,
+            ].group_replicate
+        )
+
+        precision_at_k = num_recommended_items_at_k / R
+
+        return_bundle = {"R": R, "precision": precision_at_k}
+
+        return pd.Series(return_bundle)
+

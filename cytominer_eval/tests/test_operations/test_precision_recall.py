@@ -3,6 +3,8 @@ import random
 import pathlib
 import pandas as pd
 
+import sys
+sys.path.insert(0, '/Users/mbornhol/git/mycyto/cytominer-eval')
 
 from cytominer_eval.transform import metric_melt
 from cytominer_eval.operations import precision_recall
@@ -67,3 +69,25 @@ def test_precision_recall():
     assert all(x in result_list.columns for x in groupby_columns)
 
     assert result_int.equals(result_list.query("k == 5"))
+
+def test_precision_recall_R():
+    result_list = precision_recall(
+        similarity_melted_df=similarity_melted_df,
+        replicate_groups=replicate_groups,
+        groupby_columns=groupby_columns,
+        k="R"
+    )
+
+    # assert len(result_list.k.unique()) ==
+    # assert result_list.k.unique()[0] == 5
+    #
+    # # ITGAV-1 has a really strong profile
+    # assert (
+    #     result_list.sort_values(by="recall", ascending=False)
+    #     .reset_index(drop=True)
+    #     .iloc[0, :]
+    #     .Metadata_pert_name
+    #     == "ITGAV-1"
+    # )
+    #
+    # assert all(x in result_list.columns for x in groupby_columns)
